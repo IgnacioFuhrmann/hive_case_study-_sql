@@ -171,6 +171,23 @@ from revenue_table_s1
 join revenue_table_s2 on revenue_table_s1.sku_id = revenue_table_s2.sku_id
 group by revenue_table_s1.sku_id
 
+
+-- 4
+-- margin profit per sku firts semester
+create table margin_profit_s1 as 
+Select prices.sku_id, round(((unit_price - unit_cost)/unit_price)::numeric, 2) as profit_margin_s1
+From costs, prices
+where costs.valid_until <= '6/30/2022 23:59:59' and 
+prices.valid_until <= '6/30/2022 23:59:59' and 
+prices.sku_id=costs.sku_id
+
+-- revenue per sku second semester
+create table margin_profit_s2 as 
+Select prices.sku_id, round(((unit_price - unit_cost)/unit_price)::numeric, 2) as profit_margin_s2
+From costs, prices
+where costs.valid_until >= '7/01/2022 00:00:00' and 
+prices.valid_until >= '7/01/2022 00:00:00' and 
+prices.sku_id=costs.sku_id
 -- 
 -- join all tables and export it
 copy(
@@ -180,7 +197,9 @@ join usage_table_s1 using (sku_id)
 join usage_table_s2 using (sku_id)
 join usage_table_2022 using (sku_id)
 join profit_table_s1 using (sku_id)
+join margin_profit_s1 using (sku_id)
 join profit_table_s2 using (sku_id)
+join margin_profit_s2 using (sku_id)
 join profit_table_2022 using (sku_id)
 join revenue_table_s1 using (sku_id)
 join revenue_table_s2 using (sku_id)
